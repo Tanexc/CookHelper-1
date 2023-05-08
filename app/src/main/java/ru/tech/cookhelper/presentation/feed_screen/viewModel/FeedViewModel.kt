@@ -45,6 +45,11 @@ class FeedViewModel @Inject constructor(
         }.launchIn(viewModelScope)
 
         getFeedUseCase(user.token)
+            .onLoading {
+                _feedState.updateIf(
+                    predicate = { this.data.isEmpty() }
+                ) { copy(isLoading = true) }
+            }
             .onEmpty {
                 _feedState.update { copy(isLoading = false) }
                 sendEvent(Event.ShowToast(getUIText()))
@@ -52,11 +57,6 @@ class FeedViewModel @Inject constructor(
             .onError {
                 _feedState.update { copy(isLoading = false) }
                 sendEvent(Event.ShowToast(UIText(this)))
-            }
-            .onLoading {
-                _feedState.updateIf(
-                    predicate = { this.data.isEmpty() }
-                ) { copy(isLoading = true) }
             }
             .onSuccess {
                 _feedState.update {

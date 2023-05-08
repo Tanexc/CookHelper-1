@@ -52,7 +52,8 @@ import ru.tech.cookhelper.presentation.ui.widgets.TextFieldAppearance
 import ru.tech.cookhelper.presentation.ui.widgets.TopAppBar
 
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
+@OptIn(ExperimentalMaterial3Api::class,
+    ExperimentalAnimationApi::class)
 @Composable
 fun PostCreationScreen(
     viewModel: PostCreationViewModel = hiltViewModel(),
@@ -138,6 +139,14 @@ fun PostCreationScreen(
             }
         )
 
+        val pickImage = {
+            resultLauncher.launch(
+                PickVisualMediaRequest(
+                    ActivityResultContracts.PickVisualMedia.ImageOnly
+                )
+            )
+        }
+
         LazyColumn(
             Modifier
                 .fillMaxSize()
@@ -184,13 +193,7 @@ fun PostCreationScreen(
                             modifier = Modifier
                                 .padding(paddingValues)
                                 .fillMaxWidth(),
-                            onClick = {
-                                resultLauncher.launch(
-                                    PickVisualMediaRequest(
-                                        ActivityResultContracts.PickVisualMedia.ImageOnly
-                                    )
-                                )
-                            }
+                            onClick = pickImage
                         ) {
                             Spacer(Modifier.width(8.dp))
                             Icon(Icons.Outlined.Image, null)

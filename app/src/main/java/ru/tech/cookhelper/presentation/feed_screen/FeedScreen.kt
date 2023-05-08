@@ -1,7 +1,6 @@
 package ru.tech.cookhelper.presentation.feed_screen
 
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.*
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
@@ -23,13 +22,17 @@ import ru.tech.cookhelper.presentation.profile.components.ProfileRecipeItem
 import ru.tech.cookhelper.presentation.ui.utils.compose.show
 import ru.tech.cookhelper.presentation.ui.utils.event.Event
 import ru.tech.cookhelper.presentation.ui.utils.event.collectWithLifecycle
+import ru.tech.cookhelper.presentation.ui.utils.navigation.Screen
+import ru.tech.cookhelper.presentation.ui.utils.provider.LocalScreenController
 import ru.tech.cookhelper.presentation.ui.utils.provider.LocalToastHostState
+import ru.tech.cookhelper.presentation.ui.utils.provider.navigate
 import ru.tech.cookhelper.presentation.ui.widgets.Loading
 import ru.tech.cookhelper.presentation.ui.widgets.Placeholder
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun FeedScreen(viewModel: FeedViewModel = hiltViewModel()) {
+    val screenController = LocalScreenController.current
     val lazyListState = rememberLazyListState()
 
     LaunchedEffect(viewModel.feedState.data) {
@@ -38,36 +41,25 @@ fun FeedScreen(viewModel: FeedViewModel = hiltViewModel()) {
         }
     }
 
-    AnimatedContent(
-        targetState = viewModel.feedState.isLoading,
-        modifier = Modifier.fillMaxSize()
-    ) { isLoading ->
-        if (isLoading && viewModel.feedState.data.isEmpty()) {
-            Loading()
-        } else if (!isLoading && viewModel.feedState.data.isNotEmpty()) {
-            LazyColumn(contentPadding = PaddingValues(top = 8.dp), state = lazyListState) {
-                items(
-                    items = viewModel.feedState.data,
-                    key = { it.id }
-                ) { item ->
-                    ProfileRecipeItem(
-                        currentUser = viewModel.user.user,
-                        recipePost = item,
-                        onRecipeClick = {
-                            //TODO: Open Recipe fullscreen like a post
-                        },
-                        onAuthorClick = {
-                            //TODO: Open Author page
-                        }
-                    )
-                }
+    if (viewModel.feedState.data.isNotEmpty()) {
+        LazyColumn(contentPadding = PaddingValues(top = 8.dp), state = lazyListState) {
+            items(
+                items = viewModel.feedState.data,
+            ) { item ->
+                ProfileRecipeItem(
+                    currentUser = viewModel.user.user,
+                    recipePost = item,
+                    onRecipeClick = {
+                        screenController.navigate(Screen.RecipeDetails(item))
+                    },
+                    onAuthorClick = {
+                        //TODO: Open Author page
+                    }
+                )
             }
-        } else if (!isLoading && viewModel.feedState.data.isEmpty()) {
-            Placeholder(
-                icon = Icons.Outlined.WifiTetheringOff,
-                text = stringResource(R.string.feed_error)
-            )
         }
+    } else {
+        Loading()
     }
 
     val toastHost = LocalToastHostState.current

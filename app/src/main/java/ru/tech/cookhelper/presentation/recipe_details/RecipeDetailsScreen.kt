@@ -151,7 +151,7 @@ private fun BoxWithConstraintsScope.PortraitContent(
                             if (recipe != null) {
                                 repeat(recipe.ingredients.size) {
                                     val product = recipe.ingredients[it]
-                                    val measure = recipe.measures[it]
+                                    val measure = recipe.measures.getOrNull(it) ?: -1.0
 
                                     Row(Modifier.padding(8.dp)) {
                                         Text(text = product.title.cptlize())
@@ -161,7 +161,7 @@ private fun BoxWithConstraintsScope.PortraitContent(
                                             maxLines = 1,
                                             overflow = TextOverflow.Clip
                                         )
-                                        Text(text = "${if (measure.isRoundable()) measure.roundToInt() else measure} ${product.mimetype}")
+                                        Text(text = "${if(measure == -1.0) "По вкусу" else if (measure.isRoundable()) measure.roundToInt() else measure} ${product.mimetype}")
                                     }
                                 }
                             }

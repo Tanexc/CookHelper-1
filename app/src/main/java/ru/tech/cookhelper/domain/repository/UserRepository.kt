@@ -69,4 +69,6 @@ interface UserRepository {
         token: String
     ): Flow<Action<User>>
 
+    fun searchUser(stringUserData: String, token: String): Flow<Action<List<User>>>
+
 }

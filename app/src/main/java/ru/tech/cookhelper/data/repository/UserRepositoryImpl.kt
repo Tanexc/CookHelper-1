@@ -236,4 +236,14 @@ class UserRepositoryImpl @Inject constructor(
                 }
             }
     }
+
+    override fun searchUser(stringUserData: String, token: String): Flow<Action<List<User>>> = flow {
+        val response = runIo {userApi.searchUser(
+            token = token,
+            string = stringUserData
+        ).execute() }
+        val body = response.bodyOrThrow()
+        if (body.status == SUCCESS) emit(Action.Success(body.data?.map {it.asDomain()}))
+        else emit(Action.Empty(body.status))
+    }
 }
